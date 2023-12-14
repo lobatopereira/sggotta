@@ -1,0 +1,87 @@
+{% extends "main/layout.html" %}
+
+{% load crispy_forms_tags %}
+{% block content %}
+	<section>
+        <div class="container p-3">
+          <!-- Page Header-->
+          <header> 
+            <ol class="breadcrumb mb-1 mt-1">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+              <li class="breadcrumb-item"><a href="{% url 'konfigurasaun' %}">Konfigurasaun</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+            </ol>
+          </header>
+          <section class="dashboard-header">
+              {% if messages %}
+                        {% for message in messages %} 
+                            <div id="divmessage" class="alert alert-{{ message.tags }} alert-dismissable">
+                              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              {{message}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+              <div class="row">
+  {% include 'conf_side/conf_list.html' %}
+
+                <div class="col-xl-9 col-md-9">
+                  <div class="card shadow-lg pt-3 rounded">
+                    <div class="card-header">{{legend}}</div>
+                    <div class="card-body">
+                      <form method="post" action="">
+                        {% csrf_token %}
+                        <div  id='enfermaria' class="form-group">
+                          <label>Grupu Utilizador:</label>
+                          <select name="userType" class="form-control">
+                            <option selected value="">------Hili Grupu------</option>
+                            {% for data in groups %}
+                            <option value="{{data.id}}">
+                              {{data.name|upper}}
+                            </option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label for="firstname">Naran Propriu (Username):</label>
+                          <input type="text" class="form-control" required placeholder="Naran Primeiru" name="firstname" id="firstname">
+                        </div>
+                        <div class="form-group">
+                          <label for="lastname">Apelidu:</label>
+                          <input type="text" class="form-control" required placeholder="Naran Apelidu" name="lastname" id="lastname">
+                        </div>
+                        <div class="form-group">
+                          <label for="email">Email:</label>
+                          <input type="email" class="form-control" required placeholder="Input Email neebe Ativu hela" name="email" id="email">
+                        </div>
+                        <div class="form-group">
+                          <label for="password">Password:</label>
+                          <input type="password" class="form-control" required placeholder="Password" name="password" id="password">
+                        </div>
+                        
+                        <div class="form-group text-right">
+                          <button class="btn btn-sm btn-info" type="submit" name="submit"> <i class="fa fa-save"></i> Save</button>
+                          <span class="btn btn-sm btn-secondary"  onclick=self.history.back()><i class="fa close"></i> Kansela</span>
+                        </div>
+            
+                      </form>
+                    </div>
+                  </div>
+                </div> <!--end card-md-6-->
+              </div> <!--end row-->
+          </section>
+        </div>
+      </section>
+  <script>
+    function loadcolumn() {
+      var userType = document.getElementById("userType").value;
+      var enfermaria = document.getElementById("enfermaria");
+
+      if (userType == "uenfermaria") {
+        enfermaria.style.display = "block";
+      } else if (userType == "ubloodbank") {
+        enfermaria.style.display = "none";
+      } 
+    }
+    loadcolumn();
+  </script>
+{% endblock %}

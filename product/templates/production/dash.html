@@ -1,0 +1,320 @@
+{% extends 'main/layout.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<section class="container">
+          <!-- Page Header-->
+          <header> 
+            <ol class="breadcrumb mb-1 mt-1">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+              {% if group == "distribuicao" %}
+              <li class="breadcrumb-item"><a href="{% url 'distribution-dash' %}">Painel Distribuisaun</a></li>
+              {% elif page == "form" or page == "list" or page == "detail" %}
+              <li class="breadcrumb-item"><a href="{% url 'production-dash' %}">Painel Produsaun</a></li>
+              {%endif%}
+              <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+            </ol>
+          </header>
+                    {% if messages %}
+                        {% for message in messages %} 
+                            <div class="alert alert-{{ message.tags }} alert-dismissable">
+                              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              {{message}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+          {% if page == "dash" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    {% for data in objects %}
+                    <div class="col-12 col-sm-6 col-md-3">
+                      <a href="{% url 'detail-production-list' data.unit.id %}">
+                        <div class="border border-info text-dark p-3 text-center">
+                          <b>{{data.product.name}}</b>
+                          <br>
+                          <b>{{data.total_update}} {{data.unit.unit}}</b>
+                        </div>
+                      </a>
+                    </div>
+                    {%endfor%}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12 mt-3">
+              <div class="card">
+                  <div class="card-body">
+                    <h5 align="center">Grafiku Stock Saldo Produsaun</h5><hr/>
+                    <div id="container" style="width: 100%; height: 250px;">
+                      <canvas id="chartgproductstock_data"></canvas>
+                    </div>
+                  </div>
+              </div>
+              
+            </div>
+          </div>
+          {% elif page == "list" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                    {% if group == 'producao' or group == 'admin' %}
+                    <a href="{% url 'pro-production-add' objects1.id %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Rejista Produsaun </a>
+                    {% elif group == 'distribuicao' %}
+                      {% if objects1.unitStock > 0 %}
+
+                        <a href="{% url 'product-distribution-out-add' objects1.id %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Rejista Distribuisaun </a>
+                      {%endif%}
+                    {%endif%}
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <div class="d-flex justify-content-between border border-info p-2 mb-3" style="width:23%">
+                      <div><a href="{{objects1.product.image.url}}" target="_blank"><img src="{{objects1.product.image.url}}" width="90px"></a></div>
+                      <div class="bg-info p-2 text-center text-white"><h5 class="text-white">{{objects1.product.name}}</h5>{{objects1.product.volume}}<br>({{objects1.unit}})</div>
+                    </div>
+                    <table id="example"  class="table table-hover table-striped w-100">
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Tama</th>
+                          <th>Sai</th>
+                          <th>Total</th>
+                          <th>Unidade</th>
+                          {% if group == 'producao' or group == 'admin' %}
+                          <th width="15%">Asaun</th>
+                          {% endif %}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for data in objects2 %}
+                        <tr>
+                          <td>{{data.date}}</td>
+                          <td>{{data.total_in}}</td>
+                          <td>{{data.total_out}}</td>
+                          <td>{{data.total}}</td>
+                          <td>{{data.unit.unit}}</td>
+                          {% if group == 'producao' or group == 'admin' %}
+                          <td>
+                            <div class="d-flex">
+                              {% if data.is_confirm == False %}
+                              <div class="flex-fill"><a href="{% url 'pro-production-confirm' data.id %}" class="btn btn-sm btn-outline-info mr-1" title="Konfirma"><i class="fa fa-check"></i></a></div>
+                                <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                              {%else%}
+                              <div class="flex-fill"><a href="#" class="btn btn-sm btn-danger mr-1 disabled" title="Konfirma"><i class="fa fa-trash"></i></a></div>
+                              {%endif%}
+                            </div>
+                          </td>
+                          {%endif%}
+
+                        </tr>
+                          <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Delete Dadus Produsaun {{objects.name|upper}}</h4>
+                                  <button type="button" class="close" data-dismiss="modal">X</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                  Ita Boot hakarak Apaga dadus produsaun {{data.product.name}}, {{data.total_in}} {{data.unit.unit}}?
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                  <a href="{% url 'deleteProProduction' data.id %}" class="btn btn-info">Yes</a>
+                                </div>
+                              </div>
+                            </div>
+                        </div><!-- endmodal -->
+                        {% endfor %}
+                        {% if objects3 %}
+                        <tr>
+                          <td>{{objects3.date}}</td>
+                          <td>{{objects3.total_in}}</td>
+                          <td>{{objects3.total_out}}</td>
+                          <td>{{objects3.total}}</td>
+                          <td>{{objects3.unit.unit}}</td>
+                          {% if group == 'producao' or group == 'admin' %}
+                          <td>
+                            <div class="d-flex">
+                              {% if objects3.is_confirm == False %}
+                              <div class="flex-fill"><a href="{% url 'pro-production-confirm' objects3.id %}" class="btn btn-sm btn-outline-info mr-1" title="Konfirma"><i class="fa fa-check"></i></a></div>
+                                <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ objects3.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                              {%else%}
+                              <div class="flex-fill"><a href="#" class="btn btn-sm btn-danger mr-1 disabled" title="Konfirma"><i class="fa fa-trash"></i></a></div>
+                              {%endif%}
+                            </div>
+                          </td>
+                          {%endif%}
+
+                        <div class="modal fade" id="delete-{{ objects3.id}}"><!-- modal -->
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Delete Dadus Produsaun {{objects.name|upper}}</h4>
+                                  <button type="button" class="close" data-dismiss="modal">X</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                  Ita Boot hakarak Apaga dadus produsaun {{objects3.product.name}}, {{objects3.total_in}} {{objects3.unit.unit}}?
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                  <a href="{% url 'deleteProProduction' objects3.id %}" class="btn btn-info">Yes</a>
+                                </div>
+                              </div>
+                            </div>
+                        </div><!-- endmodal -->
+                        </tr>
+                        {% endif %}
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "form" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  {% csrf_token %}
+                  {% crispy form %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "detail" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      
+                      <div class="row">
+                        <div class="col-12 col-md-6 col-lg-6 text-center"><label class="text-muted">Produtu</label><p>{{objects.name}}</p></div>
+                        <div class="col-12 col-md-6 col-lg-6 text-center"><label class="text-muted">Volume</label><p>{{objects.volume}}</p></div>
+                        <div class="col-12 col-md-12 col-lg-12 text-center mb-4"><a href="{{objects.image.url}}" target="_blank"><img src="{{objects.image.url}}"></a></div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 border">
+                      <div class="text-right my-3">
+                        {% if group == 'producao' or group == 'admin' %}
+                       <a href="{% url 'ProductUnitAdd' objects.id %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Aumenta </a>
+                        {% endif %}
+                    </div>
+                      <div class="table-responsive">
+                        <table id=""  class="table table-hover table-striped w-100">
+                          <thead>
+                            <tr>
+                              <th>Nu</th>
+                              <th>Unidade</th>
+                              <th width="15%">Asaun</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for data in objects1 %}
+                            <tr>
+                              <td scope="row"> {{forloop.counter}} </td>
+                              <td>{{data.unit}}</td>
+                              <td>
+                                <div class="d-flex">
+                                  <div class="flex-fill"><a href="{% url 'updateProductUnit' data.id %}" class="btn btn-sm btn-primary" title="Update"><i class="fa fa-pencil"></i></a></div>
+                                  <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                                </div>
+                               </td>
+
+                              <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Delete Unidade Produtu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot hakarak Apaga Produtu {{data.product.name}} unidade {{data.unit}}?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'deleteProductUnit' data.id %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+                            </tr>
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+      </section>
+
+<script src="{% static 'main/js/jquery.min.js' %}"></script>
+<!-- charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script>
+  {% include 'chart_a/js/myoptions.js' %}
+  {% include 'chart_a/js/product_stock.js' %}
+</script>
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+  //load Imagen
+    function myFunction() {
+      var image = document.getElementById("output");
+      image.src = URL.createObjectURL(event.target.files[0]);
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready( function () {
+        var table = $('#example').removeAttr('width').DataTable( {
+            // "order": [[0, "desc"]]  // 0 corresponds to the first column (ID column).
+            "order": []  // 0 corresponds to the first column (ID column).
+            
+        });
+    } );
+
+</script>
+{% endblock %}

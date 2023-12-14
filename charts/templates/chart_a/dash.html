@@ -1,0 +1,153 @@
+{% extends "main/layout.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+<section>
+    <div class="container mt-2 p-3">
+	      <!-- Page Header-->
+	    <header> 
+	        <ol class="breadcrumb mb-1 mt-1">
+	          <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+	          <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+	        </ol>
+	    </header>
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="card shadow-lg pt-1 rounded">
+						<div class="card-body">
+							<center>
+								<h3>{{ title|upper }}</h3>
+							</center>
+							<hr/>
+							<div class="row">
+								<div class="col-sm-4">
+									<div class="card bg-primary">
+										<div class="card-body" style="color: white;">
+											<center> TOTAL PRODUSAUN TOO AGORA <h2 style="margin-bottom: 0;">
+												<a href="{% url 'home' %}" style="color: white; text-decoration: underline;">{{ total_produsaun }}</a>
+											</h2></center>
+										</div>
+									</div>
+								</div><!--end col-->
+								<div class="col-sm-4">
+									<div class="card bg-info">
+										<div class="card-body" style="color: white;">
+											<center> TOTAL DISTRIBUISAUN TOO AGORA <h2 style="margin-bottom: 0;">
+												<a href="{% url 'home' %}" style="color: white; text-decoration: underline;">{{ total_distribuisaun }}</a>
+											</h2></center>
+										</div>
+									</div>
+								</div><!--end col-->
+								<div class="col-sm-4">
+									<div class="card bg-success">
+										<div class="card-body" style="color: white;">
+											<center> TOTAL STOCK <h2 style="margin-bottom: 0;">
+												<a href="{% url 'home' %}" style="color: white; text-decoration: underline;">{{ total_stock }}</a>
+											</h2></center>
+										</div>
+									</div>
+								</div><!--end col-->
+								
+							</div>
+							<hr/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="card my-1">
+									  <div class="card-body">
+									  	<div class="row">
+									  		<div class="col-sm-6">
+											    <h5 align="center">Grafiku Sumariu Produtu GOTTA</h5><hr/>
+											    <div id="container" style="width: 100%; height: 250px;">
+											      <canvas id="gproductsummChart_data"></canvas>
+											    </div>
+											</div>
+											<div class="col-sm-6">
+											    <h5 align="center">Grafiku Sumariu Produtu GOTTA</h5><hr/>
+											    <div id="container" style="width: 100%; height: 250px;">
+											      <canvas id="product_summ_allChart_data"></canvas>
+											    </div>
+											</div>
+									  	</div>
+									  </div>
+									</div>
+									<div class="card my-1">
+									  <div class="card-body">
+									    <h5 align="center">Grafiku Sumariu Osan Distribuisaun tuir Fulan iha Tinan Atual</h5><hr/>
+									    <div id="container" style="width: 100%; height: 250px;">
+									      <canvas id="gProductDistributionPriceChart_data"></canvas>
+
+									    </div>
+									  </div>
+									</div>
+									<div class="card my-1">
+									  <div class="card-body">
+									    <h5 align="center">Grafiku Sumariu Produsaun tuir Fulan iha Tinan Atual</h5><hr/>
+									    <div id="container" style="width: 100%; height: 250px;">
+									      <canvas id="gProductProdusaunChart_data"></canvas>
+
+									    </div>
+									  </div>
+									</div>
+									<div class="card my-1">
+									  <div class="card-body">
+									    <h5 align="center">Grafiku Sumariu Distribuisaun tuir Fulan iha Tinan Atual</h5><hr/>
+									    <div id="container" style="width: 100%; height: 250px;">
+									      <canvas id="gProductDistributionChart_data"></canvas>
+
+									    </div>
+									  </div>
+									</div>
+									<div class="card my-1">
+									  <div class="card-body">
+									    <h5 align="center">Grafiku Sumariu Distribuisaun tuir Tinan</h5><hr/>
+									    <div id="container" style="width: 100%; height: 250px;">
+									      <canvas id="gProductProductionByYearChart_data"></canvas>
+
+									    </div>
+									  </div>
+									</div>
+									<div class="card my-1">
+									  <div class="card-body">
+									    <h5 align="center">Grafiku Sumariu Distribuisaun tuir Tinan</h5><hr/>
+									    <div id="container" style="width: 100%; height: 250px;">
+									      <canvas id="gProductDistributionByYearChart_data"></canvas>
+
+									    </div>
+									  </div>
+									</div>
+								</div> <!--end col-->
+							</div>
+							<hr/>
+							
+						</div> <!--end card-body-->
+					</div> <!--end card-->
+				</div> <!--end col-->
+			</div> <!--end row-->
+	</div>
+</section>
+
+<script src="{% static 'main/js/jquery.min.js' %}"></script>
+<!-- charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script>
+  {% include 'chart_a/js/myoptions.js' %}
+  {% include 'chart_a/js/product_stock_summ.js' %}
+  {% include 'chart_a/js/product_stock_summ_all.js' %}
+  {% include 'chart_a/js/product_production_by_month_this_year_summ.js' %}
+  {% include 'chart_a/js/product_distribution_by_month_this_year_summ.js' %}
+  {% include 'chart_a/js/product_production_by_year_summ.js' %}
+  {% include 'chart_a/js/product_distribution_by_year_summ.js' %}
+  {% include 'chart_a/js/product_distribution_by_month_this_year_price_summ.js' %}
+</script>
+
+{% endblock %}
+{% block scripts %}
+<!-- Charts-->
+<script type="text/javascript">
+	$(document).ready( function () {
+		var table = $('#example').removeAttr('width').DataTable( {
+			
+		});
+	} );
+</script>
+{% endblock %}

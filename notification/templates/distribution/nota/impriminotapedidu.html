@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+  }
+  .transaction-note {
+    border: 1px solid #ddd;
+    padding: 20px;
+    width: 450px;
+    margin: 0 auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .transaction-header {
+    text-align: center;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+
+</style>
+    {% if user.is_authenticated %}
+  <title>SGGOTA - {{title}}</title>
+    {%else%}
+    <title>SGGOTA - LOGIN PAGE</title>
+    {%endif%}
+
+  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{% static 'main/images/gota.png' %}">
+  <link rel="stylesheet" href="{% static 'main/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'main/font-awesome/css/font-awesome.min.css' %}">
+  <link rel="stylesheet" href="{% static 'main/css/table-responsive.css' %}" media="screen">
+  <link href="{% static 'main/css/main.css' %}" rel="stylesheet">
+  {% block headStyle %}{% endblock %}
+
+</head>
+<body>
+  <div class="transaction-note">
+    <div class="transaction-header">
+       <h3>KOMPANHIA <img src="{% static 'main/images/gota.png' %}" alt="Logo" width="100px"></h3></div>
+    <div class="transaction-header">Nota Transasaun</div>
+    <hr>
+    <div class="d-flex justify-content-between">
+      <div>
+        <b>Data:</b> <u>{{today|date:"d/m/Y"}}</u><br>
+        <b>Data Pedidu:</b> <u>{{objects.datapedidu|date:"d/m/Y"}}</u> <br>
+        <b>Kontaktu:</b> <u>{{objects.client.phone}}</u> <br>
+      </div>
+      <div>
+        <b>Distributor:</b> <u>{{request.user.user.firstname}} {{request.user.user.lastname}}</u><br>
+        <b>Kliente:</b> <u>{{objects.client.firstname}} {{objects.client.lastname}}</u> <br> 
+        <b>Enderesu:</b> <u>{{objects.client.address}}</u><br>
+      </div>
+    </div>
+    
+    <table class="table table-sm mt-3 text-center table-bordered">
+      <tr>
+        <td>Nu.</td>
+        <td>Item</td>
+        <td>Presu</td>
+        <td>Unidade</td>
+        <td>Presu Total</td>
+      </tr>
+      {% for data in listaPediduProdutu %}
+      <tr>
+        <td>{{forloop.counter}}</td>
+        <td>{{data.product.name}}</td>
+        <td>{{data.unit.price}}</td>
+        <td>{{data.totalprodutu}}</td>
+        <td>{{data.totalpresu}}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="4">Total</td>
+        <td>{{objects.totalpresu}}</td>
+      </tr>
+    </table>
+
+    <div class="">
+      <img height="120px" src="data:image/png;base64,{{ qr_image_base64 }}" alt="QR Code">
+    </div>
+  </div>
+</body>
+</html>

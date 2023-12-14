@@ -1,0 +1,252 @@
+{% extends 'main/layout.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block headStyle %}
+<style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-title {
+            margin-bottom: 0;
+        }
+        .card-img-top {
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        .card-body {
+            padding: 20px;
+        }
+        .card-text {
+            margin-bottom: 10px;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+<section class="container">
+          <!-- Page Header-->
+          <header> 
+            <ol class="breadcrumb mb-1 mt-1">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+              {% if page == "form" or page == "detail" %}
+              <li class="breadcrumb-item"><a href="{% url 'client-list' %}">Dadus Kliente</a></li>
+              {%endif%}
+              <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+            </ol>
+          </header>
+                    {% if messages %}
+                        {% for message in messages %} 
+                            <div class="alert alert-{{ message.tags }} alert-dismissable">
+                              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              {{message}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+          {% if page == "dash" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    {% for data in objects %}
+                    <div class="col-12 col-sm-6 col-md-3">
+                      <a href="{% url 'detail-production-list' data.product.hashed %}">
+                        <div class="border border-info text-dark p-3 text-center">
+                          <b>{{data.product.name}}</b>
+                          <br>
+                          <b>{{data.total}} {{data.unit.unit}}</b>
+                        </div>
+                      </a>
+                    </div>
+                    {%endfor%}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "list" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                    <a href="{% url 'client-add' %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Rejista Kliente </a>
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <table id="example"  class="table table-hover table-striped w-100">
+                      <thead>
+                        <tr>
+                          <th>Nu.</th>
+                          <th>Naran Membru</th>
+                          <th>Seksu</th>
+                          <th>Hela Fatin</th>
+                          <th>Nu. Kontaktu</th>
+                          <th width="15%">Asaun</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for data in objects %}
+                        <tr>
+                          <td>{{forloop.counter}}</td>
+                          <td>{{data.firstname}} {{data.lastname}}</td>
+                          <td>{{data.sex}}</td>
+                          <td>{{data.address}}, {{data.village}}</td>
+                          <td>{{data.phone}}</td>
+                          <td>
+                            <div class="d-flex">
+                              <div class="flex-fill"><a href="{% url 'client-update' data.id %}" class="btn btn-sm btn-primary" title="Update"><i class="fa fa-pencil"></i></a></div>
+                              <div class="flex-fill"><a href="{% url 'client-detail' data.id %}" class="btn btn-sm btn-success" title="Detail"><i class="fa fa-list"></i></a></div>
+                              {% if group == "distribuicao" %}
+                              <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                              {% endif %}
+                            </div>
+                          </td>
+                          <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Delete Member / Kliente GOTA</h4>
+                                  <button type="button" class="close" data-dismiss="modal">X</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                  Ita Boot hakarak Apaga Membru ho naran {{data.firstname|upper}} {{data.lastname|upper}}?
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                  <a href="{% url 'client-delete' data.id %}" class="btn btn-info">Yes</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div><!-- endmodal -->
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "form" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  {% csrf_token %}
+                  <form method="POST" id="locationForm" data-posts-url="{% url 'ajax_load_posts' %}" data-villages-url="{% url 'ajax_load_villages' %}" novalidate enctype="multipart/form-data">{% crispy form %}</form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "detail" %}
+          <!-- <div class="row"> -->
+            <div class="col-lg-12">
+              <div class="row justify-content-center my-3 p-3 pb-5 pt-5" style="background-color: #ffffff;">
+                <div class="col-lg-6">
+                <div class="card mr-1">
+                    <center><img class="m-3" width="250px" src="{{ objects.image.url }}" alt="Client Image"></center>
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ objects.firstname }} {{ objects.lastname }}</h4>
+                        <h6 class="card-title">Phone : {{ objects.phone }}</h6>
+                    </div>
+                </div>
+                </div>
+                
+                <div class="col-lg-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Enderesu</h4>
+                        <br>
+                        <h6 class="card-title">Hela Fatin : {{objects.address}}</h6>
+                        <h6 class="card-title">Suku : {{objects.village}}</h6>
+                        <h6 class="card-title">Postu Administrativu : {{objects.administrativepost}}</h6>
+                        <h6 class="card-title">Munisipiu : {{objects.municipality}}</h6>
+                    </div>
+                </div>
+                </div>
+              </div>
+            </div>
+          <!-- </div> -->
+          {% endif %}
+      </section>
+
+<script src="{% static 'main/js/jquery.min.js' %}"></script>
+{% endblock %}
+{% block scripts %}
+
+<script type="text/javascript">
+    $(document).ready( function () {
+        var table = $('#example').removeAttr('width').DataTable( {
+            
+        });
+    } );
+</script>
+<script>
+  var $j = jQuery.noConflict();
+  $j("#id_municipality").change(function () {
+    var url = $j("#locationForm").attr("data-posts-url");
+    var municipalityId = $j(this).val();
+    $j.ajax({
+      url: url,
+      data: {
+        'municipality': municipalityId
+      },
+      success: function (data) {
+        $j("#id_administrativepost").html(data);
+      }
+    });
+
+  });
+  // this one is for fetching village data
+  $j("#id_administrativepost").change(function () {
+    var url = $j("#locationForm").attr("data-villages-url");
+    var postId = $j(this).val();
+
+    $j.ajax({
+      url: url,
+      data: {
+        'post': postId
+      },
+      success: function (data) {
+        $j("#id_village").html(data);
+      }
+    });
+
+  });
+</script>
+<script type="text/javascript">
+  //load Imagen
+    function myFunction() {
+      var image = document.getElementById("output");
+      image.src = URL.createObjectURL(event.target.files[0]);
+    }
+</script>
+{% endblock %}

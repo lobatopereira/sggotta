@@ -1,0 +1,181 @@
+{% extends "main/layout.html" %}
+{% load static %}
+{% load custom_filters %}
+{% block content %}
+<section>
+    <div class="container mt-2 p-3">
+	      <!-- Page Header-->
+	    <header> 
+	        <ol class="breadcrumb mb-1 mt-1">
+	          <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+	          <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+	        </ol>
+	    </header>
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="card shadow-lg pt-1 rounded">
+						<div class="card-body">
+							<center>
+								<h3>{{ title|upper }}</h3>
+							</center>
+							<hr/>
+							<div class="row">
+								<div class="col-sm-4">
+									<div class="card bg-primary">
+										<div class="card-body" style="color: white;">
+											<center> TOTAL PRODUSAUN TOO AGORA <h2 style="margin-bottom: 0;">
+												<a href="{% url 'home' %}" style="color: white; text-decoration: underline;">{{ total_produsaun }}</a>
+											</h2></center>
+										</div>
+									</div>
+								</div><!--end col-->
+								<div class="col-sm-4">
+									<div class="card bg-info">
+										<div class="card-body" style="color: white;">
+											<center> TOTAL DISTRIBUISAUN TOO AGORA <h2 style="margin-bottom: 0;">
+												<a href="{% url 'home' %}" style="color: white; text-decoration: underline;">{{ total_distribuisaun }}</a>
+											</h2></center>
+										</div>
+									</div>
+								</div><!--end col-->
+								<div class="col-sm-4">
+									<div class="card bg-success">
+										<div class="card-body" style="color: white;">
+											<center> TOTAL STOCK <h2 style="margin-bottom: 0;">
+												<a href="{% url 'home' %}" style="color: white; text-decoration: underline;">{{ total_stock }}</a>
+											</h2></center>
+										</div>
+									</div>
+								</div><!--end col-->
+								
+							</div>
+							<hr/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="card">
+										<div class="card-body">
+		                                    <h5 align="center">Total Tuir Produtu</h5><hr/>
+		                                    <div class="table-responsive">
+											<table class="table table-sm responsive table-bordered" style="width:100%">
+												<thead>
+													<tr>
+														<th class="text-center">Nu</th>
+														<th class="text-center">Produtu</th>
+		                                                <th class="text-center">Produsaun</th>
+		                                                <th class="text-center">Distribuisaun</th>
+		                                                <th class="text-center">Stock</th>
+													</tr>
+												</thead>
+												<tbody>
+													{% for data in sumariuProdutu %}
+													<tr>
+														<td class="text-center">{{ forloop.counter }}</td>
+														<td> {{ data.name }}</td>
+		                                                <td class="text-center"><a href="{% url 'reportProdusaun' data.id  %}">{{ data.produsaun }}</a></td>
+		                                                <td class="text-center"><a href="{% url 'reportProdusaun' data.id %}">{{ data.distribuisaun }}</a></td>
+		                                                <td class="text-center"><a href="{% url 'home' %}">{{ data.stock }}</a></td>
+		                                            </tr>
+													{% endfor %}
+												</tbody>
+											</table>
+											</div>
+										</div>
+									</div>
+								</div> <!--end col-->
+							</div>
+							<hr/>
+							<div class="row">
+								<div class="col-sm-12">
+									<div class="card">
+										<div class="card-body">
+		                                    <h5 align="center">Total Produtu tuir Fulan iha Tinan Atual</h5><hr/>
+		                                    <div class="table-responsive">
+											<table id="#" class="table table-sm table-bordered" style="width:100%">
+												<tr>
+													<th class="text-center"rowspan="3" style="vertical-align: middle;">Nu</th>
+													<th class="text-center"rowspan="3" style="vertical-align: middle;">Fulan</th>
+													<th colspan="{{listaProdutu|double_length }}" class="text-center">Produtu</th>
+												</tr>
+												<tr>
+												{% for c in listaProdutu %}
+													<th colspan="2" class="text-center">{{c.name }}</th>
+												{% endfor %}
+												</tr>
+												<tr>
+												{% for c in listaProdutu %}
+													<th colspan="" class="text-center">Produsaun</th>
+													<th colspan="" class="text-center">Distribuisaun</th>
+												{% endfor %}
+												</tr>
+												{% for obj_c in sumariu_tuir_fulan_tinan_atual %}
+												<tr>
+													<td data-title="Nu." class="text-center">{{ forloop.counter }}</td>
+													<td data-title="Federasaun">{{ obj_c.fulan }}</td>
+												{% for obj_c2 in obj_c.sumariuProdutuTuirFulan %}
+													<td data-title="#" class="text-center"><a href="{% url 'reportProdusaunTuirFulan' obj_c2.produtuID obj_c.fulan %}">{{ obj_c2.produsaun }}</a></td>
+													<td data-title="" class="text-center"><a href="{% url 'reportDistribuicaoTuirFulan' obj_c2.produtuID obj_c.fulan  %}">{{ obj_c2.distribuisaun }}</a></td>
+												{% endfor %}
+												</tr>
+												{% endfor %}
+											</table>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-sm-12 mt-4">
+									<div class="card">
+										<div class="card-body">
+		                                    <h5 align="center">Total Produtu tuir Tinan</h5><hr/>
+		                                    <div class="table-responsive">
+											<table id="#" class="table table-sm table-bordered" style="width:100%">
+												<tr>
+													<th class="text-center"rowspan="3" style="vertical-align: middle;">Nu</th>
+													<th class="text-center"rowspan="3" style="vertical-align: middle;">Tinan</th>
+													<th colspan="{{listaProdutu|double_length }}" class="text-center">Produtu</th>
+												</tr>
+												<tr>
+												{% for c in listaProdutu %}
+													<th colspan="2" class="text-center">{{c.name }}</th>
+												{% endfor %}
+												</tr>
+												<tr>
+												{% for c in listaProdutu %}
+													<th colspan="" class="text-center">Produsaun</th>
+													<th colspan="" class="text-center">Distribuisaun</th>
+												{% endfor %}
+												</tr>
+												{% for obj_c in sumario_kada_tinan %}
+												<tr>
+													<td data-title="Nu." class="text-center">{{ forloop.counter }}</td>
+													<td data-title="Federasaun">{{ obj_c.tinan }}</td>
+												{% for obj_c2 in obj_c.sumariuProdutuTuirTinan %}
+													<td data-title="#" class="text-center"><a href="{% url 'reportProdusaunTuirTinan' obj_c2.produtuID obj_c.tinan %}">{{ obj_c2.produsaun }}</a></td>
+													<td data-title="" class="text-center"><a href="{% url 'reportDistribuicaoTuirTinan' obj_c2.produtuID obj_c.tinan  %}">{{ obj_c2.distribuisaun }}</a></td>
+												{% endfor %}
+												</tr>
+												{% endfor %}
+											</table>
+											</div>
+										</div>
+									</div>
+								</div>
+					 <!--end col-->
+							</div><!--end row-->
+							
+						</div> <!--end card-body-->
+					</div> <!--end card-->
+				</div> <!--end col-->
+			</div> <!--end row-->
+	</div>
+</section>
+{% endblock %}
+{% block scripts %}
+<!-- Charts-->
+<script type="text/javascript">
+	$(document).ready( function () {
+		var table = $('#example').removeAttr('width').DataTable( {
+			
+		});
+	} );
+</script>
+{% endblock %}

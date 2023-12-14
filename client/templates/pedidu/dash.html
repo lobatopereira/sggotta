@@ -1,0 +1,544 @@
+{% extends 'main/layout.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% block headStyle %}
+
+{% if page == "form" %}
+<script>
+    function addFormSection() {
+        var formSection = document.createElement("div");
+        formSection.className = "form-row";
+        formSection.innerHTML = `
+            <label for="lastname">Produtu:</label>
+                          <select name="produtu" class="form-control" required>
+                            <option value="">----Hili Produtu----</option>
+                            {% for i in productobjects %}
+                            <option value="{{i.id}}">{{i.product.name}}</option>
+                            {% endfor %}
+                          </select>
+                          <label for="email">Total Pedidu:</label>
+                         <input type="text" class="form-control" required placeholder="Total Pedidu ba Produtu" name="totalpedidu" id="email" required>
+                         <button class="btn btn-sm btn-danger my-3" type="button" onclick="removeFormSection(this)"><i class="fa fa-trash"></i> Delete</button>
+        `;
+        document.getElementById("dynamic-form").appendChild(formSection);
+    }
+
+    function removeFormSection(button) {
+        var formRow = button.parentNode;
+        formRow.parentNode.removeChild(formRow);
+    }
+</script>
+{% endif %}
+<style>
+    .form-row {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px 0;
+    }
+</style>
+{% endblock %}
+{% block content %}
+
+<section class="container">
+          <!-- Page Header-->
+          <header> 
+            <ol class="breadcrumb mb-1 mt-1">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+              {% if page == "form" or page == "detail" or page == "form1update" %}
+              <li class="breadcrumb-item"><a href="{% url 'client-product-request-list' %}">Dadus Pedidu</a></li>
+              {%endif%}
+              <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+            </ol>
+          </header>
+                    {% if messages %}
+                        {% for message in messages %} 
+                            <div class="alert alert-{{ message.tags }} alert-dismissable">
+                              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              {{message}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+          {% if page == "dash" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center mb-4">Stock Produtu Disponivel</h4>
+                  <div class="row justify-content-center">
+                    {% for data in objects %}
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="border {% if data.total_update_pedidu < 10 %} border-danger text-danger {% else %}border-info text-dark {% endif %} p-3 text-center">
+                          <b>{{data.product.name}}</b>
+                          <br>
+                          <b>
+                          {{data.total_update_pedidu}} {{data.unit.unit}}</b>
+                          <br>
+                          <small>Presu : $ {{data.unit.price}}/{{data.unit.unit}}</small>
+                        </div>
+                    </div>
+                    {%endfor%}
+                  </div>
+                  <hr>
+                  <div class="text-right mb-3">
+                    <a href="{% url 'client-product-request-add' %}" class="btn btn-sm btn-info"><i class="fa fa-plus-square"></i> Kria Pedidu Foun</a>
+                  </div>
+                  <div class="table-responsive">
+                    <table id="example"  class="table table-hover table-striped w-100">
+                      <thead>
+                        <tr>
+                          <th>Nu.</th>
+                          <th>Data Pedidu</th>
+                          <th>Produtu</th>
+                          <th>Status Pedidu</th>
+                          <th width="15%">Asaun</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for data in objects1 %}
+                        <tr>
+                          <td>{{forloop.counter}}</td>
+                          <td>{{data.datapedidu|date:"d-M-Y"}}</td>
+                          <td>{% for i in data.getPediduProdutu %}{{i.product.name}}  ({{i.totalprodutu}} {{i.unit.unit}}) <br>{% endfor %}</td>
+                          <td>
+                            {% if data.is_sent == False %}Seidauk Manda<br><a href="#" data-toggle="modal" data-target="#send-pedidu-{{ data.id }}" class="btn btn-sm btn-warning"><i class="fa fa-send"></i> Manda Pedidu</a>{% else %}<b class="badge badge-warning">Manda Ona <i class="fa fa-check-square"></i></b>{% endif %}<br>
+                            {% if data.is_sent == True and data.is_ontheway == False %} Seidauk Responde<br>{% elif data.is_sent == True and data.is_ontheway == True %}<b class="badge badge-warning">Responde Ona <i class="fa fa-check-square"></i></b>{% endif %}
+                            {% if data.is_sent == True and data.is_ontheway == True and data.is_delivered == True %}
+                            <b class="badge badge-success">Simu Ona <i class="fa fa-check-square"></i></b>
+                          {% endif %}
+                          </td>
+                          <td>
+                            <div class="d-flex">
+                              <div class="flex-fill"><a href="{% url 'client-product-request-detail' data.hashed %}" class="btn btn-sm btn-primary" title="Update"><i class="fa fa-list"></i></a></div>
+                              {% if group == "client" and data.is_ontheway == False %}
+                              <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                              {% endif %}
+                            </div>
+                          </td>
+                          <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Delete Pedidu Produtu</h4>
+                                  <button type="button" class="close" data-dismiss="modal">X</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                  Ita Boot hakarak Apaga Dadus Pedidu iha Data {{data.datapedidu|date:"d-M-Y"}}?
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                  <a href="{% url 'client-product-request-delete' data.id %}" class="btn btn-info">Yes</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div><!-- endmodal -->
+
+                          <div class="modal fade" id="send-pedidu-{{ data.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Manda Pedidu Produtu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot hakarak Manda Dadus Pedidu ba Produtu?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'client-product-request-list-send' data.hashed %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+                            
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "historylist" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                    
+                  <div class="table-responsive">
+                    <table id="example"  class="table table-hover table-striped w-100">
+                      <thead>
+                        <tr>
+                          <th>Nu.</th>
+                          <th>Data Pedidu</th>
+                          <th>Produtu</th>
+                          <th>Presu Total</th>
+                          <th>Status Pedidu</th>
+                          <th width="15%">Asaun</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for data in objects1 %}
+                        <tr>
+                          <td>{{forloop.counter}}</td>
+                          <td>{{data.datapedidu|date:"d-M-Y"}}</td>
+                          <td>{% for i in data.getPediduProdutu %}{{i.product.name}}  ({{i.totalprodutu}} {{i.unit.unit}}) <br>{% endfor %}</td>
+                          <td>$ {{data.totalpresu}}</td>
+                          <td>
+                            {% if data.is_sent == False %}Seidauk Manda<br><a href="#" data-toggle="modal" data-target="#send-pedidu-{{ data.id }}" class="btn btn-sm btn-warning"><i class="fa fa-send"></i> Manda Pedidu</a>{% else %}<b class="badge badge-warning">Manda Ona <i class="fa fa-check-square"></i></b>{% endif %}<br>
+                            {% if data.is_sent == True and data.is_ontheway == False %} Seidauk Responde<br>{% elif data.is_sent == True and data.is_ontheway == True %}<b class="badge badge-warning">Responde Ona <i class="fa fa-check-square"></i></b>{% endif %}
+                            {% if data.is_sent == True and data.is_ontheway == True and data.is_delivered == True %}
+                            <b class="badge badge-success">Simu Ona <i class="fa fa-check-square"></i></b>
+                          {% endif %}
+                          </td>
+                          <td>
+                            <div class="d-flex">
+                              <div class="flex-fill"><a href="{% url 'client-product-request-detail' data.hashed %}" class="btn btn-sm btn-primary" title="Update"><i class="fa fa-list"></i></a></div>
+                              {% if group == "client" and data.is_ontheway == False %}
+                              <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                              {% endif %}
+                            </div>
+                          </td>
+                          <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Delete Pedidu Produtu</h4>
+                                  <button type="button" class="close" data-dismiss="modal">X</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                  Ita Boot hakarak Apaga Dadus Pedidu iha Data {{data.datapedidu|date:"d-M-Y"}}?
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                  <a href="{% url 'client-product-request-delete' data.id %}" class="btn btn-info">Yes</a>
+                                </div>
+                              </div>
+                            </div>
+                          </div><!-- endmodal -->
+
+                          <div class="modal fade" id="send-pedidu-{{ data.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Manda Pedidu Produtu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot hakarak Manda Dadus Pedidu ba Produtu?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'client-product-request-list-send' data.hashed %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+                            
+                        </tr>
+                        {% endfor %}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "form" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form method="post" action="">
+                    <div id="dynamic-form">
+                        {% csrf_token %}
+                          <label for="firstname">Data Pedidu:</label>
+                          <input type="date" class="form-control" required placeholder="Naran Primeiru" required name="datapedidu" id="firstname">
+                      <div class="form-row">
+                          <label for="lastname">Produtu:</label>
+                          <select name="produtu" class="form-control" required>
+                            <option value="">----Hili Produtu----</option>
+                            {% for i in productobjects %}
+                            <option value="{{i.id}}">{{i.product.name}}</option>
+                            {% endfor %}
+                          </select>
+                          <label for="email">Total Pedidu:</label>
+                          <input type="text" class="form-control" required placeholder="Total Pedidu ba Produtu" name="totalpedidu" id="email" required>
+                        <button class="btn btn-sm btn-danger my-3" type="button" onclick="removeFormSection(this)"><i class="fa fa-trash"></i> Delete</button>
+                      </div>
+                      </div>
+                      <button class="btn btn-sm btn-primary" onclick="addFormSection()"><i class="fa fa-plus-square"></i> Add New Form</button>
+                      <div class="form-group text-right">
+                        <button class="btn btn-sm btn-info" type="submit" name="submit"> <i class="fa fa-save"></i> Save</button>
+                        <span class="btn btn-sm btn-secondary"  onclick=self.history.back()><i class="fa close"></i> Kansela</span>
+                      </div>
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "form1" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form method="post" action="">
+                        {% csrf_token %}
+                          <label for="lastname">Produtu:</label>
+                          <select name="produtu" class="form-control" required>
+                            <option value="">----Hili Produtu----</option>
+                            {% for i in productobjects %}
+                            <option value="{{i.id}}">{{i.product.name}}</option>
+                            {% endfor %}
+                          </select>
+                          <label for="email">Total Pedidu:</label>
+                          <input type="text" class="form-control" required placeholder="Total Pedidu ba Produtu" name="totalpedidu" id="email" required>
+                      <div class="form-group text-right my-3">
+                        <button class="btn btn-sm btn-info" type="submit" name="submit"> <i class="fa fa-save"></i> Save</button>
+                        <span class="btn btn-sm btn-secondary"  onclick=self.history.back()><i class="fa close"></i> Kansela</span>
+                      </div>
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "form1update" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <form method="post" action="">
+                        {% csrf_token %}
+                          <label for="lastname">Produtu:</label>
+                          <select name="produtu" class="form-control" required readonly>
+                            <option value="{{productobjects.id}}" selected>{{pediduprodutu.product.name}}</option>
+                            
+                          </select>
+                          <label for="email">Total Pedidu:</label>
+                          <input type="text" class="form-control" value="{{pediduprodutu.totalprodutu}}" required placeholder="Total Pedidu ba Produtu" name="totalpedidu" id="email" required>
+                      <div class="form-group text-right my-3">
+                        <button class="btn btn-sm btn-info" type="submit" name="submit"> <i class="fa fa-save"></i> Save</button>
+                        <span class="btn btn-sm btn-secondary"  onclick=self.history.back()><i class="fa close"></i> Kansela</span>
+                      </div>
+                    </form>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "detail" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                    <h4 class="text-center mb-4">Stock Produtu Disponivel</h4>
+                  <div class="row justify-content-center">
+                    {% for data in objects %}
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <div class="border {% if data.total_update_pedidu < 10 %} border-danger text-danger {% else %}border-info text-dark {% endif %} p-3 text-center">
+                          <b>{{data.product.name}}</b>
+                          <br>
+                          <b>
+                          {{data.total_update_pedidu}} {{data.unit.unit}}</b>
+                        </div>
+                    </div>
+                    {%endfor%}
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-lg-4">
+                      
+                      <div class="row">
+                        <div class="col-12 col-md-6 col-lg-6 "><label class="text-muted">Data Pedidu :</label><p>{{objects1.datapedidu|date:"d-M-Y"}}</p></div>
+                        <div class="col-12 col-md-6 col-lg-6 "><label class="text-muted">Status Pedidu :</label>
+                          {% if objects1.is_sent == False %}Seidauk Manda<br><a href="#" data-toggle="modal" data-target="#send-pedidu-{{ objects1.id }}" class="btn btn-sm btn-warning"><i class="fa fa-send"></i> Manda Pedidu</a>{% else %}<b class="badge badge-warning">Manda Ona <i class="fa fa-check-square"></i></b>{% endif %}<br>
+                          {% if objects1.is_sent == True and objects1.is_ontheway == False %}
+                            Seidauk Responde<br>
+                          {% elif objects1.is_sent == True and objects1.is_ontheway == True %}
+                            <b class="badge badge-warning">Responde Ona <i class="fa fa-check-square"></i></b>
+                          {% endif %}
+                          {% if objects1.is_sent == True and objects1.is_ontheway == True and objects1.is_delivered == True %}
+                            <b class="badge badge-success">Simu Ona <i class="fa fa-check-square"></i></b>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-8 border">
+                      <div class="text-right my-3">
+                        {% if objects1.is_sent == False and objects1.is_ontheway == False %}
+                       <a href="{% url 'client-product-request-add1' objects1.hashed %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Aumenta </a>
+                        {%endif%}
+                    </div>
+                      <div class="table-responsive">
+                        <table id=""  class="table table-sm table-hover table-striped w-100">
+                          <thead>
+                            <tr>
+                              <th>Nu</th>
+                              <th>Produdu</th>
+                              <th class="text-center">Total Pedidu</th>
+                              <th width="15%">Asaun</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for data in objects1.getPediduProdutu %}
+                            <tr>
+                              <td scope="row"> {{forloop.counter}} </td>
+                              <td>{{data.product.name}}</td>
+                              <td class="text-center">{{data.totalprodutu}} {{data.unit.unit}}</td>
+                              <td>
+                                {% if objects1.is_sent == False and objects1.is_ontheway == False %}
+                                <div class="d-flex">
+                                  <div class="flex-fill"><a href="{% url 'client-product-item-request-update' data.hashed %}" class="btn btn-sm btn-primary" title="Update"><i class="fa fa-pencil"></i></a></div>
+                                  <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                                </div>
+
+                                {%else%}
+                                <div class="d-flex">
+                                  <div class="flex-fill"><a href="{% url 'client-product-item-request-update' data.hashed %}" class="disabled btn btn-sm btn-primary" title="Update"><i class="fa fa-pencil"></i></a></div>
+                                  <div class="flex-fill"> <button type="button" class="disabled btn btn-sm btn-danger" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                                </div>
+                                {%endif%}
+                                <!-- {% if objects1.is_sent == True and objects1.is_ontheway == True %}
+                                  <div class="flex-fill"> <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#konfirma-produtu-simu-{{ data.id }}" style="text-decoration: none"><i class="fa fa-check-square"></i> Konfirma</button></div>
+                                {%endif%} -->
+                               </td>
+
+                              <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Delete Item Produtu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot hakarak Apaga Dadus Pedidu Produtu {{data.product.name}} ho total {{data.totalprodutu}} {{data.unit.unit}}?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'client-product-request-delete1' data.id %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+
+                              <div class="modal fade" id="send-pedidu-{{ objects1.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Manda Pedidu Produtu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot hakarak Manda Dadus Pedidu ba Produtu?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'client-product-request-list-send' objects1.hashed %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+
+                            <div class="modal fade" id="konfirma-produtu-simu-{{ data.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Konfirma Produtu ne'ebe simu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot Simu duni Produtu tuir pedidu ne'ebe haruka?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'home' %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+                            
+                            </tr>
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+                      <a href="{% url 'distribution-imprimi-nota-pedidu' objects1.hashed %}" target="_blank" class="btn btn-sm btn-dark my-3" title="Haruka ona"><i class="fa fa-print"></i> Imprimi Nota </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+      </section>
+
+{% endblock %}
+<script src="{% static 'sys_assets/js/jquery.min.js' %}"></script>
+{% block scripts %}
+
+<script type="text/javascript">
+    $(document).ready( function () {
+        var table = $('#example').removeAttr('width').DataTable( {
+            
+        });
+    } );
+</script>
+
+<script type="text/javascript">
+  //load Imagen
+    function myFunction() {
+      var image = document.getElementById("output");
+      image.src = URL.createObjectURL(event.target.files[0]);
+    }
+</script>
+{% endblock %}

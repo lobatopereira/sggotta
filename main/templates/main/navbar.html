@@ -1,0 +1,30 @@
+{% load static %}
+<header class="site-header">
+	<nav class="navbar navbar-expand-md navbar-dark bg-info fixed-top">
+		<a class="navbar-brand" href="{% url 'home' %}">
+		<img src="{% static 'main/images/gota.png' %}" alt="Logo" width="60px"> 
+		{% if user.is_authenticated %}
+			SG - GOTA
+		{%else%}
+			Sistema Jestaun Produsaun GOTA
+		{%endif%}
+		</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		{% if user.is_authenticated %}
+			{% if user.groups.all.0.name == 'admin' %}
+				{% include 'navbar/navbarAdmin.html' %}
+			{% elif user.groups.all.0.name == 'diretor' %}
+				{% include 'navbar/navbarDiretor.html' %}
+			{% elif user.groups.all.0.name == 'distribuicao' %}
+				{% include 'navbar/navbarDistribuicao.html' %}
+			{% elif user.groups.all.0.name == 'producao' %}
+				{% include 'navbar/navbarProducao.html' %}
+			{% elif user.groups.all.0.name == 'client' %}
+				{% include 'navbar/navbarCliente.html' %}
+			{% endif %}
+		{% endif %}
+	</nav>
+</header>
+<hr/>

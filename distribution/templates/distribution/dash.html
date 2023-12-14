@@ -1,0 +1,305 @@
+{% extends 'main/layout.html' %}
+
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<section class="container">
+          <!-- Page Header-->
+          <header> 
+            <ol class="breadcrumb mb-1 mt-1">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+              {% if page == "form" or page == "list" %}
+              <li class="breadcrumb-item"><a href="{% url 'distribution-dash' %}">Painel Distribuisaun</a></li>
+              {%endif%}
+              <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+            </ol>
+          </header>
+                    {% if messages %}
+                        {% for message in messages %} 
+                            <div class="alert alert-{{ message.tags }} alert-dismissable">
+                              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              {{message}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+          {% if page == "dash" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body text-right">
+                  <a href="{% url 'distribution-out-add' %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Aumenta Distribuisaun / Sai</a><br><br>
+                  <div class="row">
+                    {% for data in objects %}
+                    <div class="col-12 col-sm-6 col-md-6 my-1">
+                      
+                        <div class="d-flex justify-content-center border border-primary text-dark p-3 text-center">
+                          
+                          <table border="0" cellpadding="3" class="text-center">
+                            <tr>
+                              <td colspan="3">
+                                <a href="{% url 'detail-production-list' data.unit.id %}" style="text-decoration: none;">
+                                  <b style="font-size: 1.2rem">{{data.product.name|upper}}</b><br>({{data.unit.unit}})<br>
+                                </a>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td class="bg-primary text-white px-2">Total Produsaun </td>
+                              <td class="bg-info text-white px-2">Total STOCK </td>
+                              <td class="bg-secondary text-white px-2">Total Distribui / Sai</td>
+                            </tr>
+                            <tr>
+                              <td class="bg-primary text-white px-2"> <b>{{data.total}}</b></td>
+                              <td class="bg-info text-white px-2"> <b>{{data.total_update}}</b></td>
+                              <td class="bg-secondary text-white px-2"> <b>{{data.total_out}}</b></td>
+                            </tr>
+                          </table>
+                        </div>
+                    </div>
+                    {%endfor%}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "list" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                    <a href="{% url 'pro-production-add' objects1.id %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Aumenta </a>
+                  </div>
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="table-responsive">
+                    <div class="d-flex justify-content-between border border-info p-2 mb-3" style="width:23%">
+                      <div><a href="{{objects.image.url}}" target="_blank"><img src="{{objects.image.url}}" width="90px"></a></div>
+                      <div class="bg-info p-2 text-center text-white"><h5 class="text-white">{{objects.name}}</h5>{{objects.volume}}</div>
+                    </div>
+                    <table id="example"  class="table table-hover table-striped w-100">
+                      <thead>
+                        <tr>
+                          <th>Data</th>
+                          <th>Tama</th>
+                          <th>Sai</th>
+                          <th>Total</th>
+                          <th>Unidade</th>
+                          <th width="15%">Asaun</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for data in objects2 %}
+                        <tr>
+                          <td>{{data.date}}</td>
+                          <td>{{data.totalIn}}</td>
+                          <td>{{data.totalOut}}</td>
+                          <td>{{data.total}}</td>
+                          <td>{{data.unit.unit}}</td>
+                          <td>
+                            <div class="flex-fill"><a href="#" class="btn btn-sm btn-danger mr-1 disabled" title="Konfirma"><i class="fa fa-trash"></i></a></div>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                        {% if objects3 %}
+                        <tr>
+                          <td>{{objects3.date}}</td>
+                          <td>{{objects3.totalIn}}</td>
+                          <td>{{objects3.totalOut}}</td>
+                          <td>{{objects3.total}}</td>
+                          <td>{{objects3.unit.unit}}</td>
+                          <td>
+                            <div class="d-flex">
+                              {% if objects3.is_confirm == False %}
+                              <div class="flex-fill"><a href="{% url 'pro-production-confirm' objects3.id %}" class="btn btn-sm btn-outline-info mr-1" title="Konfirma"><i class="fa fa-check"></i></a></div>
+                                <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ objects3.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                              {%else%}
+                              <div class="flex-fill"><a href="#" class="btn btn-sm btn-danger mr-1 disabled" title="Konfirma"><i class="fa fa-trash"></i></a></div>
+                              {%endif%}
+                            </div>
+                           </td>
+
+                          <div class="modal fade" id="delete-{{ objects3.id}}"><!-- modal -->
+                            <div class="modal-dialog">
+                              <div class="modal-content">
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                  <h4 class="modal-title">Delete Dadus Produsaun {{objects.name|upper}}</h4>
+                                  <button type="button" class="close" data-dismiss="modal">X</button>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                  Ita Boot hakarak Apaga dadus produsaun {{objects3.product.name}}, {{objects3.totalIn}} {{objects3.unit.unit}}?
+                                </div>
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                  <a href="{% url 'deleteProProduction' objects3.id %}" class="btn btn-info">Yes</a>
+                                </div>
+                              </div>
+                            </div>
+                        </div><!-- endmodal -->
+                        </tr>
+                        {% endif %}
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "form" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  {% csrf_token %}
+                  {% crispy form %}
+                </div>
+              </div>
+            </div>
+          </div>
+          {% elif page == "detail" %}
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="card-header d-flex justify-content-end text-center">
+                  <div class="text-center border">
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-lg-6">
+                      
+                      <div class="row">
+                        <div class="col-12 col-md-6 col-lg-6 text-center"><label class="text-muted">Produtu</label><p>{{objects.name}}</p></div>
+                        <div class="col-12 col-md-6 col-lg-6 text-center"><label class="text-muted">Volume</label><p>{{objects.volume}}</p></div>
+                        <div class="col-12 col-md-12 col-lg-12 text-center mb-4"><a href="{{objects.image.url}}" target="_blank"><img src="{{objects.image.url}}"></a></div>
+                      </div>
+                    </div>
+                    <div class="col-lg-6 border">
+                      <div class="text-right my-3">
+                       <a href="{% url 'ProductUnitAdd' objects.id %}" class="btn btn-sm btn-info" title="Add Data"><i class="fa fa-plus-square"></i> Aumenta </a>
+                    </div>
+                      <div class="table-responsive">
+                        <table id=""  class="table table-hover table-striped w-100">
+                          <thead>
+                            <tr>
+                              <th>Nu</th>
+                              <th>Unidade</th>
+                              <th width="15%">Asaun</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for data in objects1 %}
+                            <tr>
+                              <td scope="row"> {{forloop.counter}} </td>
+                              <td>{{data.unit}}</td>
+                              <td>
+                                <div class="d-flex">
+                                  <div class="flex-fill"><a href="{% url 'updateProductUnit' data.id %}" class="btn btn-sm btn-primary" title="Update"><i class="fa fa-pencil"></i></a></div>
+                                  <div class="flex-fill"> <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#delete-{{ data.id }}" style="text-decoration: none"><i class="fa fa-trash"></i></button></div>
+                                </div>
+                               </td>
+
+                              <div class="modal fade" id="delete-{{ data.id}}"><!-- modal -->
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                      <h4 class="modal-title">Delete Unidade Produtu</h4>
+                                      <button type="button" class="close" data-dismiss="modal">X</button>
+                                    </div>
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                      Ita Boot hakarak Apaga Produtu {{data.product.name}} unidade {{data.unit}}?
+                                    </div>
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                      <a href="{% url 'deleteProductUnit' data.id %}" class="btn btn-info">Yes</a>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div><!-- endmodal -->
+                            </tr>
+                            {% endfor %}
+
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+      </section>
+{% if page == 'form' %}
+<script src="{% static 'main/js/jquery.min.js' %}"></script>
+<script>
+  // load fed ath category
+  var $j = jQuery.noConflict();
+  $j("#id_unit").change(function () {
+    var unitId = $j(this).val();
+    $j.ajax({
+      url: "{% url 'ajax_load_product_price' %}",
+      data: {
+        'unit': unitId
+      },
+      success: function (data) {
+        $j("#id_product_price").html(data);
+      }
+    });
+
+  });
+
+  // $j("#id_total_out").change(function () {
+  $j("#id_total_out").on("keyup", function () {
+    var total_outID = $j(this).val();
+    const id_total_out = parseFloat(document.getElementById("id_total_out").value);
+    console.log("id_total_out:"+total_outID)
+    if (!isNaN(total_outID)) {
+      const totalprice = total_outID * {{productunit.price}};
+      document.getElementById("id_totalprice").value = totalprice;
+      console.log("totalprice:"+totalprice)
+    }
+    
+
+  });
+</script>
+{% endif %}
+
+
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+  //load Imagen
+    function myFunction() {
+      var image = document.getElementById("output");
+      image.src = URL.createObjectURL(event.target.files[0]);
+    }
+</script>
+
+<script type="text/javascript">
+    $(document).ready( function () {
+        var table = $('#example').removeAttr('width').DataTable( {
+            
+        });
+    } );
+</script>
+{% endblock %}

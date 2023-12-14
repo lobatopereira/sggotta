@@ -1,0 +1,22 @@
+<div class="col-md-3 mb-3">
+	<input class="form-control mb-1" id="myInput" type="text" placeholder="Search..">
+	<ul class="list-group" id="myList">
+	    <a class="" href="{% url 'product' %}"><li class="list-group-item">Produtu GOTA<i class="badge badge-warning float-right">{{totalMunisipiu}}</i></li></a>
+	    <a class="" href="{% url 'konfigurasaun' %}"><li class="list-group-item">Dadus Utilizador<i class="badge badge-warning float-right">{{totalMunisipiu}}</i></li></a>
+	    <a class="" href="{% url 'listaMunisipiu' %}"><li class="list-group-item">Dadus Munisipiu<i class="badge badge-warning float-right">{{totalMunisipiu}}</i></li></a>
+	    <a class="" href="{% url 'listaPostu' %}"><li class="list-group-item">Dadus Postu Administrativu<i class="badge badge-warning float-right">{{totalPostu}}</i></li></a>
+	    <a class="" href="{% url 'listaSuku' %}"><li class="list-group-item">Dadus Suku<i class="badge badge-warning float-right">{{totalSuku}}</i></li></a>
+	    <a class="" href="{% url 'listaAldeia' %}"><li class="list-group-item">Dadus Aldeia<i class="badge badge-warning float-right">{{totalAldeia}}</i></li></a>
+	</ul>
+</div>
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myList li").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>

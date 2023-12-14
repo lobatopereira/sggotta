@@ -1,0 +1,36 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+	<header> 
+		<ol class="breadcrumb mb-1 mt-1">
+		  <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+		  <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+		</ol>
+	</header>
+    {% if messages %}
+        {% for message in messages %} 
+            <div class="alert alert-{{ message.tags }} alert-dismissable">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              {{message}}
+            </div>
+        {% endfor %}
+    {% endif %}
+<div class="row">
+	<!-- <div class="col">
+		<div class="col-md">
+			<div class="card text-center text-white mb-4" id="tot-suku">
+				<div class="card-header">
+					<h5 class="card-title">Total Suku Munisipiu Dili </h5>
+				</div>
+				<div class="card-body">
+					<h3 class="card-title">{{total_suku}}</h3>
+				</div>
+			</div>
+		</div>
+	</div> -->
+	{% include 'conf_side/conf_list.html' %}
+	{% include 'userlist.html' %}
+</div>
+{% endblock %}

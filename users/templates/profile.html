@@ -1,0 +1,114 @@
+{% extends "main/layout.html" %}
+
+{% load crispy_forms_tags %}
+{% block content %}
+	<section>
+        <div class="container mt-3 p-3">
+          <!-- Page Header-->
+          <header> 
+            <ol class="breadcrumb mb-1 mt-1">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Varanda</a></li>
+              <li class="breadcrumb-item active" aria-current="page">{{title}}</li>
+            </ol>
+          </header>
+          <section class="dashboard-header">
+              {% if messages %}
+                        {% for message in messages %} 
+                            <div id="divmessage" class="alert alert-{{ message.tags }} alert-dismissable">
+                              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                              {{message}}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+              <div class="row">
+                <div class="col-xl-4 col-md-4">
+                  <div class="card shadow-lg pt-3 rounded">
+                    <div class="card-header text-center">PHOTO</div>
+                    <div class="card-body">
+                      {% if profile.image %}
+                      <img src="{{ profile.image.url }}" class="rounded" width="100%" height="200px">
+                      {% else %}
+                      {% endif %}
+                    </div>
+                    <div class="card-footer text-right">
+                      <div class="small">
+                        <button type="button" class="btn btn-sm btn-info mr-1" title="Update Photo Profile" data-toggle="modal" data-target="#KonfirmaPhotoUProfile" style="text-decoration: none"><i class="fa fa-edit"></i> Update Photo 
+                      </button>
+                      </div>
+                    </div>
+                  </div>
+                </div> <!--end card-md-6-->
+                <div class="col-xl-8 col-md-8">
+                  <div class="card shadow-lg pt-3 rounded">
+                    <div class="card-header d-flex justify-content-between">
+                      <b>INFORMASAUN PESSOAL</b>
+                      <a href="{% url 'manageAccount' %}" class="btn btn-sm btn-primary"><span class="fa fa-user-o"></span> Account</a>
+                    </div>
+                    <div class="card-body">
+                      <table class="table table-sm">
+                        <tr><td>Naran Kompletu </td><td>: {{profile.firstname}}{{profile.lastname}}</td></tr>
+                        <tr><td>Seksu </td><td>: {{profile.sex}}</td></tr>
+                        <tr><td>Fatin Moris </td><td>: {{profile.dob}}</td></tr>
+                        <tr><td>Data Moris </td><td>: {{profile.pob}}</td></tr>
+                        <tr><td>Email </td><td>: {{profile.user.email}}</td></tr>
+                        <tr><td>Data Rejistu </td><td>: {{profile.datetime}}</td></tr>
+                      </table>
+                    </div>
+                    <div class="card-footer">
+                      <!-- <a href="{% url 'UpdateProfileUtilizador' %}" class="btn btn-sm btn-primary"><span class="fa fa-user-o"></span> Update Profile</a> -->
+                      <button type="button" class="btn btn-sm btn-info mr-1" title="Update Profile" data-toggle="modal" data-target="#KonfirmaPasswordUProfile" style="text-decoration: none"><i class="fa fa-edit"></i> Update Profile 
+                      </button>
+                    </div>
+                  </div>
+                </div> <!--end card-md-6-->
+              </div> <!--end row-->
+          </section>
+        </div>
+      </section>
+      <div class="modal fade" id="KonfirmaPasswordUProfile">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            
+            <div class="modal-header">
+              <h4 class="modal-title">Favor Preense Password Molok halo Alterasaun ba Profile!</h4>
+              <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            
+              {% csrf_token %}
+            <form action="{% url 'KonfirmaPasswordProfile' %}" method="GET">
+            <div class="modal-body">
+                <input class="form-control" type="hidden" name="page" value="userProfile">
+                <input class="form-control" autofocus required type="password" name="password">
+            </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Lae</button>
+                <button type="submit" name="submit" class="btn btn-info">Konfirma</button>
+              </div>
+              </form>
+          </div>
+        </div>
+      </div>
+      <div class="modal fade" id="KonfirmaPhotoUProfile">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            
+            <div class="modal-header">
+              <h4 class="modal-title">Favor Preense Password Molok halo Alterasaun ba Photo!</h4>
+              <button type="button" class="close" data-dismiss="modal">X</button>
+            </div>
+            
+              {% csrf_token %}
+            <form action="{% url 'KonfirmaPasswordProfile' %}" method="GET">
+            <div class="modal-body">
+                <input class="form-control" type="hidden" name="page" value="userPhoto">
+                <input class="form-control" autofocus required type="password" name="password">
+            </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Lae</button>
+                <button type="submit" name="submit" class="btn btn-info">Konfirma</button>
+              </div>
+              </form>
+          </div>
+        </div>
+      </div>
+{% endblock %}
