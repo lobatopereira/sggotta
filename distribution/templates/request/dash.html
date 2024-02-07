@@ -100,7 +100,7 @@
                           <td><a href="{% url 'client-detail' data.client.id %}" style="text-decoration: none;">{{data.client.firstname}} {{data.client.lastname}}</a></td>
                           <td>
                             {% for i in data.getPediduProdutu %}
-                              {{forloop.counter}}. {{i.product.name}} <b class="badge badge-warning">{{i.totalpedidu}} {{i.unit.unit}}</b><br>
+                              {{forloop.counter}}. {{i.product.name}} <b class="badge badge-warning">{{i.totalprodutu}} {{i.unit.unit}}</b><br>
                             {%endfor%}
 
                           </td>
@@ -281,7 +281,32 @@
                       </div>
                       <a href="{% url 'distribution-imprimi-nota-pedidu' objects1.hashed %}" target="_blank" class="btn btn-sm btn-dark my-3" title="Haruka ona"><i class="fa fa-print"></i> Imprimi Nota </a>
                       {% if objects1.is_delivered == False %}
-                      <a href="{% url 'dist-konfirma-entrega-ona-produtu' objects1.hashed %}" class="btn btn-sm btn-success my-3" title="Konfirma Katak Entrega ona"><i class="fa fa-check-square-square"></i> Entrega Ona </a>
+                      <a href="#" data-toggle="modal" data-target="#korfimaentrega-{{ objects1.id }}" class="btn btn-sm btn-success my-3" title="Konfirma Katak Entrega ona"><i class="fa fa-check-square-square"></i> Entrega Ona </a>
+                      <div class="modal fade" id="korfimaentrega-{{ objects1.id}}"><!-- modal -->
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <!-- Modal Header -->
+                              <div class="modal-header">
+                                <h5 class="modal-title">Konfirmasaun Data Distribuisaun Produtu </h5>
+                                <button type="button" class="close" data-dismiss="modal">X</button>
+                              </div>
+                              <!-- Modal body -->
+                              <form method="get" action="{% url 'dist-konfirma-entrega-ona-produtu' objects1.hashed %}">
+                              <div class="modal-body">
+                                Ita boot Konfirmadu katak Produtu Entrega ona?
+                                <br>
+                                Favor prense data distribuisaun*:<br>
+                                <input class="form-control" type="date" name="data_distribui" required>
+                              </div>
+                              <!-- Modal footer -->
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+                                <button type="submit" name="submit" class="btn btn-info">Yes</button>
+                              </div>
+                              </form>
+                            </div>
+                          </div>
+                      </div><!-- endmodal -->
                       {% endif %}
                     </div>
                   </div>

@@ -79,9 +79,10 @@ def DetailProductionAdd(request,id):
 				productUnitStock.total_update_pedidu = totalTama
 			else:
 				productUnitStock.total_update_pedidu += totalTama
+			if lastTransantion:
+				lastTransantion.is_confirm = True
+				lastTransantion.save()
 			productUnitStock.save()
-			lastTransantion.is_confirm = True
-			lastTransantion.save()
 			messages.success(request, f'Dadus Produsaun {objects.name} GOTA aumenta ona.')
 			return redirect('detail-production-list',objects1.id)
 	else:
